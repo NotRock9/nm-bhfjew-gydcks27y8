@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mock Test HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent-phys: #eab308;
+    --accent-chem: #ef4444;
+    --accent-math: #10b981;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --flip-bg: #1e1e2e;
+    --flip-text: #f0f0ff;
+    --green: #4ade80;
+    --red: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .header-tag {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+  }
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-phys) 60%, var(--accent-math) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  .countdown-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 24px;
+    margin-bottom: 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .countdown-section::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 300px; height: 120px;
+    background: radial-gradient(ellipse, rgba(234, 179, 8, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .countdown-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .flip-clock {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .flip-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .flip-card-container {
+    position: relative;
+    width: 72px;
+    height: 80px;
+    perspective: 300px;
+  }
+
+  .flip-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .flip-half {
+    position: absolute;
+    left: 0; right: 0;
+    height: 50%;
+    overflow: hidden;
+    background: var(--flip-bg);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  .flip-top { 
+    top: 0; 
+    border-bottom: 1px solid rgba(0,0,0,0.4); 
+    border-radius: 6px 6px 0 0; 
+  }
+  
+  .flip-bottom { 
+    bottom: 0; 
+    border-top: 1px solid rgba(255,255,255,0.04); 
+    border-radius: 0 0 6px 6px; 
+  }
+
+  .flip-card .flip-top.flip-anim {
+    transform-origin: bottom center;
+    z-index: 3;
+  }
+
+  .flip-card .flip-bottom.flip-anim {
+    transform-origin: top center;
+    transform: rotateX(90deg);
+    z-index: 2;
+  }
+
+  .flip-top span, .flip-bottom span {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 38px;
+    color: var(--flip-text);
+    text-align: center;
+  }
+  
+  .flip-top span { line-height: 80px; }
+  .flip-bottom span { line-height: 80px; margin-top: -40px; }
+
+  .flip-card.flipping .flip-top.flip-anim {
+    animation: flipTopCard 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+  .flip-card.flipping .flip-bottom.flip-anim {
+    animation: flipBottomCard 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes flipTopCard {
+    0% { transform: rotateX(0deg); filter: brightness(1); }
+    100% { transform: rotateX(-90deg); filter: brightness(0.3); }
+  }
+  @keyframes flipBottomCard {
+    0% { transform: rotateX(90deg); filter: brightness(0.3); }
+    100% { transform: rotateX(0deg); filter: brightness(1); }
+  }
+
+  .flip-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .flip-sep {
+    font-family: 'Space Mono', monospace;
+    font-size: 36px;
+    color: var(--border);
+    margin-bottom: 22px;
+    line-height: 1;
+    align-self: flex-start;
+    margin-top: 16px;
+  }
+
+  .test-datetime {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .test-datetime span {
+    color: var(--accent-phys);
+    font-weight: 700;
+  }
+
+  .syllabus-section { margin-bottom: 32px; }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .subject-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .subject-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .subject-header:hover { background: var(--surface2); }
+
+  .subject-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .subject-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .subject-name {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+  }
+
+  .subject-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .subject-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .progress-pill .done { color: var(--green); }
+  .progress-pill .total { color: var(--muted); }
+
+  .chevron {
+    width: 20px; height: 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.3s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .chevron svg { width: 10px; transition: transform 0.3s; }
+  .subject-card.open .chevron { border-color: var(--muted); }
+  .subject-card.open .chevron svg { transform: rotate(180deg); }
+
+  .subject-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .subject-card.open .subject-body { max-height: 1000px; }
+
+  .topic-list {
+    padding: 4px 22px 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  @media (max-width: 600px) { .topic-list { grid-template-columns: 1fr; } }
+
+  .topic-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    border: 1px solid transparent;
+  }
+  .topic-item:hover { background: #222232; transform: translateX(2px); }
+  .topic-item.done { border-color: rgba(74,222,128,0.2); }
+
+  .topic-checkbox {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+    position: relative;
+  }
+  .topic-item.done .topic-checkbox {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .topic-item.done .topic-checkbox::after {
+    content: '';
+    width: 10px; height: 7px;
+    border-left: 2px solid #0a0a0f;
+    border-bottom: 2px solid #0a0a0f;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+
+  .topic-text {
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.15s;
+    line-height: 1.3;
+  }
+  .topic-item.done .topic-text {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(107,107,128,0.5);
+  }
+
+  .subject-progress-bar {
+    height: 2px;
+    background: var(--border);
+    margin: 0 22px 0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .subject-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .live-clock-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .live-time {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+  .live-time .colon { animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .live-date-block { text-align: right; }
+  .live-date {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .live-day {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .chem .subject-dot { background: var(--accent-chem); }
+  .chem .subject-name { color: var(--accent-chem); }
+  .chem.open { border-color: rgba(239, 68, 68, 0.3); }
+  .chem .subject-progress-fill { background: var(--accent-chem); }
+
+  .math .subject-dot { background: var(--accent-math); }
+  .math .subject-name { color: var(--accent-math); }
+  .math.open { border-color: rgba(16, 185, 129, 0.3); }
+  .math .subject-progress-fill { background: var(--accent-math); }
+
+  .phys .subject-dot { background: var(--accent-phys); }
+  .phys .subject-name { color: var(--accent-phys); }
+  .phys.open { border-color: rgba(234, 179, 8, 0.3); }
+  .phys .subject-progress-fill { background: var(--accent-phys); }
+
+  .overall-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .overall-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .overall-track {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .overall-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-phys), var(--accent-math));
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+  .overall-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--green);
+    color: #0a0a0f;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 1000;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ─── Results Carousel ─── */
+  .carousel-section {
+    margin-top: 8px;
+    margin-bottom: 40px;
+  }
+
+  .carousel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .carousel-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .carousel-btn:hover {
+    border-color: var(--accent-phys);
+    color: var(--accent-phys);
+    background: rgba(234,179,8,0.06);
+  }
+  .carousel-btn svg { width: 14px; height: 14px; }
+
+  .carousel-pause-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .carousel-pause-btn.paused {
+    border-color: var(--accent-phys);
+    color: var(--accent-phys);
+    background: rgba(234,179,8,0.06);
+  }
+  .carousel-pause-btn svg { width: 14px; height: 14px; }
+
+  .carousel-viewport {
+    overflow: hidden;
+    position: relative;
+    border-radius: 16px;
+    padding: 4px 0 8px;
+  }
+
+  .carousel-viewport::before,
+  .carousel-viewport::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .carousel-viewport::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg), transparent);
+  }
+  .carousel-viewport::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg), transparent);
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 16px;
+    width: max-content;
+    will-change: transform;
+  }
+
+  /* ─── Result Card ─── */
+  .result-card {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card:hover {
+    border-color: rgba(234,179,8,0.35);
+    transform: translateY(-3px);
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.06;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .result-card:hover::before { opacity: 0.1; }
+
+  .result-card.rank-s::before { background: #eab308; }
+  .result-card.rank-a::before { background: #10b981; }
+  .result-card.rank-b::before { background: #3b82f6; }
+  .result-card.rank-c::before { background: #8b5cf6; }
+  .result-card.rank-d::before { background: #ef4444; }
+  .result-card.empty::before { display: none; }
+
+  .result-card.empty {
+    border-style: dashed;
+    opacity: 0.45;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .card-test-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+    padding-right: 8px;
+  }
+
+  .card-rank-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .rank-s .card-rank-badge { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+  .rank-a .card-rank-badge { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+  .rank-b .card-rank-badge { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .rank-c .card-rank-badge { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .rank-d .card-rank-badge { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+  .card-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .card-scores {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .score-chip {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+
+  .score-chip-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .score-chip-label.lbl-phys { color: var(--accent-phys); }
+  .score-chip-label.lbl-chem { color: var(--accent-chem); }
+  .score-chip-label.lbl-math { color: var(--accent-math); }
+
+  .score-chip-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .score-chip-total {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .card-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 12px;
+  }
+
+  .card-remark {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .card-remark strong {
+    color: var(--text);
+    font-style: normal;
+  }
+
+  .card-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .card-total-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .card-total-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .rank-s .card-total-val { color: #eab308; }
+  .rank-a .card-total-val { color: #10b981; }
+  .rank-b .card-total-val { color: #60a5fa; }
+  .rank-c .card-total-val { color: #a78bfa; }
+  .rank-d .card-total-val { color: #f87171; }
+  .empty .card-total-val { color: var(--muted); }
+
+  .empty-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    gap: 10px;
+  }
+  .empty-icon {
+    width: 32px; height: 32px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  .empty-icon svg { width: 16px; height: 16px; }
+  .empty-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* ─── Notion-Safe Custom Layout Reset Area ─── */
+  .reset-container {
+    text-align: center;
+    margin-top: 40px;
+  }
+  .reset-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .reset-btn:hover {
+    border-color: var(--accent-chem);
+    color: var(--accent-chem);
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  /* ─── Fully In-App Custom Modal Styling ─── */
+  .custom-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .custom-modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .custom-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    transform: translateY(20px);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .custom-modal-overlay.open .custom-modal {
+    transform: translateY(0);
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-chem);
+    margin-bottom: 12px;
+  }
+  .modal-desc {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+  .modal-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.15s ease;
+  }
+  .btn-confirm {
+    background: var(--accent-chem);
+    border: 1px solid var(--accent-chem);
+    color: #0a0a0f;
+  }
+  .btn-confirm:hover {
+    filter: brightness(0.9);
+  }
+  .btn-cancel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-cancel:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-tag">JEE PREP DASHBOARD</div>
+    <h1>Mock Test HQ</h1>
+  </div>
+
+  <div class="countdown-section">
+    <div class="countdown-label" id="countdown-status">Next Mock Test</div>
+    <div class="flip-clock">
+      <div class="flip-unit">
+        <div class="flip-card-container">
+          <div class="flip-card" id="fc-days">
+            <div class="flip-half flip-top static"><span id="days-top-back">00</span></div>
+            <div class="flip-half flip-bottom static"><span id="days-bot-back">00</span></div>
+            <div class="flip-half flip-top flip-anim"><span id="days-top-front">00</span></div>
+            <div class="flip-half flip-bottom flip-anim"><span id="days-bot-front">00</span></div>
+          </div>
+        </div>
+        <div class="flip-label">Days</div>
+      </div>
+      <div class="flip-sep">:</div>
+      
+      <div class="flip-unit">
+        <div class="flip-card-container">
+          <div class="flip-card" id="fc-hours">
+            <div class="flip-half flip-top static"><span id="hours-top-back">00</span></div>
+            <div class="flip-half flip-bottom static"><span id="hours-bot-back">00</span></div>
+            <div class="flip-half flip-top flip-anim"><span id="hours-top-front">00</span></div>
+            <div class="flip-half flip-bottom flip-anim"><span id="hours-bot-front">00</span></div>
+          </div>
+        </div>
+        <div class="flip-label">Hours</div>
+      </div>
+      <div class="flip-sep">:</div>
+      
+      <div class="flip-unit">
+        <div class="flip-card-container">
+          <div class="flip-card" id="fc-mins">
+            <div class="flip-half flip-top static"><span id="mins-top-back">00</span></div>
+            <div class="flip-half flip-bottom static"><span id="mins-bot-back">00</span></div>
+            <div class="flip-half flip-top flip-anim"><span id="mins-top-front">00</span></div>
+            <div class="flip-half flip-bottom flip-anim"><span id="mins-bot-front">00</span></div>
+          </div>
+        </div>
+        <div class="flip-label">Mins</div>
+      </div>
+      <div class="flip-sep">:</div>
+      
+      <div class="flip-unit">
+        <div class="flip-card-container">
+          <div class="flip-card" id="fc-secs">
+            <div class="flip-half flip-top static"><span id="secs-top-back">00</span></div>
+            <div class="flip-half flip-bottom static"><span id="secs-bot-back">00</span></div>
+            <div class="flip-half flip-top flip-anim"><span id="secs-top-front">00</span></div>
+            <div class="flip-half flip-bottom flip-anim"><span id="secs-bot-front">00</span></div>
+          </div>
+        </div>
+        <div class="flip-label">Secs</div>
+      </div>
+    </div>
+    <div class="test-datetime">Test on <span id="test-date-display">—</span></div>
+  </div>
+
+  <div class="overall-bar">
+    <div class="overall-label">OVERALL</div>
+    <div class="overall-track"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+    <div class="overall-pct" id="overall-pct">0%</div>
+  </div>
+
+  <div class="syllabus-section">
+    <div class="section-title">Mock Test Syllabus</div>
+    <div id="subjects-container"></div>
+  </div>
+
+  <div class="live-clock-section">
+    <div class="live-time" id="live-time">00<span class="colon">:</span>00<span class="colon">:</span>00</div>
+    <div class="live-date-block">
+      <div class="live-date" id="live-date">—</div>
+      <div class="live-day" id="live-day">—</div>
+    </div>
+  </div>
+
+  <!-- ─── Results Carousel ─── -->
+  <div class="carousel-section">
+    <div class="carousel-header">
+      <div class="section-title" style="margin-bottom:0">Past Results</div>
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="carousel-prev" title="Previous" aria-label="Previous">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M9 2L4 7l5 5"/>
+          </svg>
+        </button>
+        <button class="carousel-pause-btn" id="carousel-pause" title="Pause/Resume" aria-label="Pause or resume carousel">
+          <svg id="pause-icon" viewBox="0 0 14 14" fill="currentColor">
+            <rect x="2" y="2" width="4" height="10" rx="1"/>
+            <rect x="8" y="2" width="4" height="10" rx="1"/>
+          </svg>
+        </button>
+        <button class="carousel-btn" id="carousel-next" title="Next" aria-label="Next">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M5 2l5 5-5 5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="carousel-viewport" id="carousel-viewport">
+      <div class="carousel-track" id="carousel-track"></div>
+    </div>
+  </div>
+
+  <!-- ─── Reset Progress Button ─── -->
+  <div class="reset-container">
+    <button class="reset-btn" id="reset-progress-btn" onclick="openResetModal()">↺ RESET PROGRESS FOR NEXT TEST</button>
+  </div>
+
+</div>
+
+<!-- ─── Custom HTML In-App Confirmation Modal ─── -->
+<div class="custom-modal-overlay" id="reset-modal">
+  <div class="custom-modal">
+    <div class="modal-title">Reset Syllabus?</div>
+    <div class="modal-desc">This will wipe out all your checked checkboxes for the current checklist so you can start fresh.</div>
+    <div class="modal-actions">
+      <button class="modal-btn btn-cancel" onclick="closeResetModal()">CANCEL</button>
+      <button class="modal-btn btn-confirm" onclick="executeProgressWipe()">WIPE IT</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ SAVED</div>
+
+<script>
+/* ─── CONFIG: Add / edit your mock test results here ─── */
+const MOCK_RESULTS = [
+  {
+    name: 'Mock Test 1 - Mains',
+    date: '19 Apr 2026',
+    phys: 55,
+    chem: 16,
+    math: 39,
+    total: 110,
+    maxTotal: 300,
+    remark: '<strong>Need to Improve.</strong> Physics is solid. Work on Chemistry.',
+  },
+  {
+    name: 'Mock Test 2 - Mains',
+    date: '19 Apr 2026',
+    phys: 92,
+    chem: 42,
+    math: 68,
+    total: 202,
+    maxTotal: 300,
+    remark: '<strong>Improving.</strong> Physics gaining traction. Chem still dipping.',
+  },
+  {
+    name: 'Mock Test 3',
+    date: '1 Jun 2026',
+    phys: 0,
+    chem: 0,
+    math: 0,
+    total: 193,
+    maxTotal: 300,
+    remark: '<strong>Big jump.</strong> Chem finally clicked. Keep this momentum.',
+  },
+
+  /* ── Empty placeholder slots (upcoming tests) ── */
+  { empty: true, name: 'Mock Test 6' },
+  { empty: true, name: 'Mock Test 7' },
+  { empty: true, name: 'Mock Test 8' },
+];
+
+/* rank by % of maxTotal */
+function getRank(total, max) {
+  const p = (total / max) * 100;
+  if (p >= 80) return 'S';
+  if (p >= 65) return 'A';
+  if (p >= 50) return 'B';
+  if (p >= 35) return 'C';
+  return 'D';
+}
+function rankClass(r) { return 'rank-' + r.toLowerCase(); }
+
+function buildCard(data) {
+  const card = document.createElement('div');
+  if (data.empty) {
+    card.className = 'result-card empty';
+    card.innerHTML = `
+      <div class="empty-card-inner">
+        <div class="empty-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="12" height="12" rx="2"/>
+            <path d="M8 5v6M5 8h6"/>
+          </svg>
+        </div>
+        <div class="empty-text">${data.name}<br>Not Yet Taken</div>
+      </div>`;
+    return card;
+  }
+
+  const rank = getRank(data.total, data.maxTotal);
+  card.className = `result-card ${rankClass(rank)}`;
+
+  const maxSub = data.maxTotal / 3;
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-test-name">${data.name}</div>
+      <div class="card-rank-badge">${rank}</div>
+    </div>
+    <div class="card-date">${data.date}</div>
+    <div class="card-scores">
+      <div class="score-chip">
+        <div class="score-chip-label lbl-phys">PHY</div>
+        <div class="score-chip-val">${data.phys}</div>
+        <div class="score-chip-total">/${maxSub}</div>
+      </div>
+      <div class="score-chip">
+        <div class="score-chip-label lbl-chem">CHE</div>
+        <div class="score-chip-val">${data.chem}</div>
+        <div class="score-chip-total">/${maxSub}</div>
+      </div>
+      <div class="score-chip">
+        <div class="score-chip-label lbl-math">MAT</div>
+        <div class="score-chip-val">${data.math}</div>
+        <div class="score-chip-total">/${maxSub}</div>
+      </div>
+    </div>
+    <div class="card-total-row">
+      <div class="card-total-label">Total</div>
+      <div class="card-total-val">${data.total}<span style="font-size:11px;color:var(--muted);font-weight:400">/${data.maxTotal}</span></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="card-remark">${data.remark}</div>
+  `;
+  return card;
+}
+
+/* ─── Carousel Engine ─── */
+(function() {
+  const track = document.getElementById('carousel-track');
+  const viewport = document.getElementById('carousel-viewport');
+  const btnPrev = document.getElementById('carousel-prev');
+  const btnNext = document.getElementById('carousel-next');
+  const btnPause = document.getElementById('carousel-pause');
+  const pauseIcon = document.getElementById('pause-icon');
+
+  const CARD_W = 240;
+  const GAP = 16;
+  const STEP = CARD_W + GAP;
+  const SPEED = 0.5; /* px per frame */
+
+  /* Build cards × 3 for seamless looping */
+  const allData = [...MOCK_RESULTS, ...MOCK_RESULTS, ...MOCK_RESULTS];
+  allData.forEach(d => track.appendChild(buildCard(d)));
+
+  const totalCards = MOCK_RESULTS.length;
+  const loopWidth = totalCards * STEP;
+
+  /* Start offset at second copy so we can loop both ways */
+  let offset = loopWidth;
+  track.style.transform = `translateX(-${offset}px)`;
+
+  let paused = false;
+  let hovered = false;
+  let raf = null;
+
+  function setOffset(v) {
+    offset = v;
+    track.style.transform = `translateX(-${offset}px)`;
+  }
+
+  function loop() {
+    if (!paused && !hovered) {
+      offset += SPEED;
+      /* Seamless wrap */
+      if (offset >= loopWidth * 2) offset -= loopWidth;
+      if (offset < loopWidth) offset += loopWidth;
+      track.style.transform = `translateX(-${offset}px)`;
+    }
+    raf = requestAnimationFrame(loop);
+  }
+
+  loop();
+
+  /* Manual step with smooth transition */
+  function smoothStep(delta) {
+    const target = offset + delta;
+    const start = offset;
+    const duration = 400;
+    const startTime = performance.now();
+
+    function animate(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      let cur = start + (target - start) * ease;
+      /* wrap check */
+      if (cur >= loopWidth * 2) cur -= loopWidth;
+      if (cur < loopWidth) cur += loopWidth;
+      setOffset(cur);
+      if (t < 1) requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  btnPrev.addEventListener('click', () => smoothStep(-STEP));
+  btnNext.addEventListener('click', () => smoothStep(STEP));
+
+  btnPause.addEventListener('click', () => {
+    paused = !paused;
+    btnPause.classList.toggle('paused', paused);
+    pauseIcon.innerHTML = paused
+      ? '<polygon points="3,2 13,7 3,12"/>'
+      : '<rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/>';
+  });
+
+  viewport.addEventListener('mouseenter', () => { hovered = true; });
+  viewport.addEventListener('mouseleave', () => { hovered = false; });
+
+  /* Touch swipe support */
+  let touchStartX = 0;
+  viewport.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  viewport.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) smoothStep(dx < 0 ? STEP : -STEP);
+  }, { passive: true });
+})();
+
+/* ─── Dashboard Logic ─── */
+const TEST_DATE = new Date(2026, 5, 14, 6, 30);
+
+const SYLLABUS = [
+  {
+    id: 'chemistry',
+    name: 'Chemistry',
+    cls: 'chem',
+    topics: ['Quantum Numbers', 'Periodic Table', 'Chemical Bonding (Till Octet Rule - Lewis Dot Structures)']
+  },
+  {
+    id: 'math',
+    name: 'Math',
+    cls: 'math',
+    topics: ['Set Theory', 'Intervals', 'Number System', 'Fundamentals of Algebra', 'Logarithms', 'Quadratic Equations (Till Modulas Inequality)',]
+  },
+  {
+    id: 'physics',
+    name: 'Physics',
+    cls: 'phys',
+    topics: ['Angle', 'Small Angle Approximation', 'Basic Trigonometry', 'Coordinate system', 'Distance between two points', 'Straight Line', 'Binomial Approximation', 'Differentiation & Applications', 'Integration & Applications', 'Vector', 'Units & Dimensions']
+  }
+];
+
+let state = {};
+
+function storageKey(subId, topic) { 
+  return `mt_${subId}_${topic.replace(/\s+/g,'_')}`; 
+}
+
+function loadState() {
+  SYLLABUS.forEach(sub => {
+    sub.topics.forEach(t => {
+      const k = storageKey(sub.id, t);
+      state[k] = localStorage.getItem(k) === '1';
+    });
+  });
+}
+
+function saveState(key, val) {
+  state[key] = val;
+  localStorage.setItem(key, val ? '1' : '0');
+  showToast("✓ SAVED");
+  updateProgress();
+}
+
+let toastTimer = null;
+function showToast(message) {
+  const t = document.getElementById('toast');
+  t.textContent = message;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function buildSyllabus() {
+  const container = document.getElementById('subjects-container');
+  container.innerHTML = '';
+
+  SYLLABUS.forEach(sub => {
+    const card = document.createElement('div');
+    card.className = `subject-card ${sub.cls} open`;
+    card.id = `card-${sub.id}`;
+
+    card.innerHTML = `
+      <div class="subject-header" onclick="toggleSubject('${sub.id}')">
+        <div class="subject-left">
+          <div class="subject-dot"></div>
+          <div>
+            <div class="subject-name">${sub.name}</div>
+            <div class="subject-meta">${sub.topics.length} topics</div>
+          </div>
+        </div>
+        <div class="subject-right">
+          <div class="progress-pill" id="pill-${sub.id}">
+            <span class="done" id="done-${sub.id}">0</span>/<span class="total">${sub.topics.length}</span>
+          </div>
+          <div class="chevron">
+            <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M1 1l4 4 4-4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="subject-progress-bar">
+        <div class="subject-progress-fill" id="bar-${sub.id}" style="width:0%"></div>
+      </div>
+      <div class="subject-body">
+        <div class="topic-list" id="list-${sub.id}"></div>
+      </div>
+    `;
+
+    container.appendChild(card);
+
+    const list = card.querySelector(`#list-${sub.id}`);
+    sub.topics.forEach(topic => {
+      const k = storageKey(sub.id, topic);
+      const item = document.createElement('div');
+      item.className = 'topic-item' + (state[k] ? ' done' : '');
+      item.dataset.key = k;
+      item.innerHTML = `<div class="topic-checkbox"></div><div class="topic-text">${topic}</div>`;
+      item.onclick = () => {
+        const newVal = !state[k];
+        saveState(k, newVal);
+        item.classList.toggle('done', newVal);
+      };
+      displayAnimationOnOpen(item);
+      list.appendChild(item);
+    });
+  });
+}
+
+function displayAnimationOnOpen(elem) {
+  elem.style.opacity = '0';
+  elem.style.transform = 'translateY(10px)';
+  elem.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+  requestAnimationFrame(() => {
+    elem.style.opacity = '1';
+    elem.style.transform = 'translateY(0px)';
+  });
+}
+
+function toggleSubject(id) {
+  const card = document.getElementById(`card-${id}`);
+  card.classList.toggle('open');
+}
+
+function updateProgress() {
+  let totalDone = 0, totalAll = 0;
+  SYLLABUS.forEach(sub => {
+    let done = 0;
+    sub.topics.forEach(t => { if (state[storageKey(sub.id, t)]) done++; });
+    const pct = sub.topics.length ? (done / sub.topics.length * 100) : 0;
+    document.getElementById(`done-${sub.id}`).textContent = done;
+    document.getElementById(`bar-${sub.id}`).style.width = pct + '%';
+    totalDone += done;
+    totalAll += sub.topics.length;
+  });
+  const overall = totalAll ? Math.round(totalDone / totalAll * 100) : 0;
+  document.getElementById('overall-fill').style.width = overall + '%';
+  document.getElementById('overall-pct').textContent = overall + '%';
+}
+
+/* ─── Fully Coded In-App Modal Operations ─── */
+function openResetModal() {
+  document.getElementById('reset-modal').classList.add('open');
+}
+
+function closeResetModal() {
+  document.getElementById('reset-modal').classList.remove('open');
+}
+
+function executeProgressWipe() {
+  SYLLABUS.forEach(sub => {
+    sub.topics.forEach(t => {
+      const k = storageKey(sub.id, t);
+      localStorage.removeItem(k);
+    });
+  });
+  
+  loadState();
+  buildSyllabus();
+  updateProgress();
+  closeResetModal();
+  showToast("↺ PROGRESS RESET");
+}
+
+const prev = { d: "-1", h: "-1", m: "-1", s: "-1" };
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = TEST_DATE - now;
+
+  let d = 0, h = 0, m = 0, s = 0;
+  
+  if (diff > 0) {
+    document.getElementById('countdown-status').textContent = "Next Mock Test";
+    d = Math.floor(diff / 86400000);
+    h = Math.floor((diff % 86400000) / 3600000);
+    m = Math.floor((diff % 3600000) / 60000);
+    s = Math.floor((diff % 60000) / 1000);
+  } else {
+    document.getElementById('countdown-status').textContent = "🔴 TEST STARTED / ELAPSED";
+  }
+
+  const vals = [pad(d), pad(h), pad(m), pad(s)];
+  const ids = ['days', 'hours', 'mins', 'secs'];
+  const keys = ['d', 'h', 'm', 's'];
+
+  ids.forEach((id, i) => {
+    const currentVal = vals[i];
+    const prevVal = prev[keys[i]];
+
+    if (currentVal !== prevVal) {
+      const fc = document.getElementById(`fc-${id}`);
+      const tf = document.getElementById(`${id}-top-front`);
+      const bf = document.getElementById(`${id}-bot-front`);
+      const tb = document.getElementById(`${id}-top-back`);
+      const bb = document.getElementById(`${id}-bot-back`);
+
+      if (fc && tf && bf && tb && bb) {
+        tb.textContent = currentVal;
+        bb.textContent = currentVal;
+        fc.classList.remove('flipping');
+        void fc.offsetWidth;
+        fc.classList.add('flipping');
+        setTimeout(() => {
+          tf.textContent = currentVal;
+          bf.textContent = currentVal;
+        }, 450);
+      }
+      prev[keys[i]] = currentVal;
+    }
+  });
+}
+
+function formatTestDate() {
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = TEST_DATE;
+  let hours = d.getHours();
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const hoursStr = String(hours).padStart(2, '0');
+  return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} at ${hoursStr}:${mins} ${ampm}`;
+}
+
+function updateLiveClock() {
+  const now = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12;
+  const hs = String(h).padStart(2, '0');
+  document.getElementById('live-time').innerHTML =
+    `${hs}<span class="colon">:</span>${m}<span class="colon">:</span>${s} <span style="font-size: 0.6em; color: var(--accent-phys); font-weight: 700; margin-left: 6px; text-transform: uppercase;">${ampm}</span>`;
+  document.getElementById('live-date').textContent =
+    `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  document.getElementById('live-day').textContent = days[now.getDay()];
+}
+
+loadState();
+buildSyllabus();
+updateProgress();
+document.getElementById('test-date-display').textContent = formatTestDate();
+updateCountdown();
+updateLiveClock();
+setInterval(updateCountdown, 1000);
+setInterval(updateLiveClock, 1000);
+</script>
+</body>
+</html>
