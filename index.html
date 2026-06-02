@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -46,6 +46,38 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 40px 24px 80px;
+  }
+
+  /* ─── Aim Banner with Paint Brush Pattern Effect ─── */
+  .aim-banner-container {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .aim-banner {
+    display: inline-block;
+    position: relative;
+    padding: 12px 48px;
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #0a0a0f;
+    text-transform: uppercase;
+    z-index: 1;
+  }
+  .aim-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(135deg, var(--accent-phys) 0%, var(--accent-math) 100%);
+    /* Creates an aggressive, irregular dynamic artistic brush stroke/paint pattern */
+    clip-path: polygon(
+      2% 15%, 15% 3%, 35% 12%, 65% 2%, 88% 10%, 98% 4%, 95% 45%, 
+      100% 85%, 85% 95%, 55% 88%, 30% 98%, 8% 90%, 0% 70%, 4% 35%
+    );
+    transform: rotate(-1.5deg);
+    filter: drop-shadow(0px 4px 10px rgba(234, 179, 8, 0.3));
   }
 
   .header {
@@ -874,6 +906,10 @@
 
 <div class="wrap">
 
+  <div class="aim-banner-container">
+    <div class="aim-banner">Aim 300/300</div>
+  </div>
+
   <div class="header">
     <div class="header-tag">JEE PREP DASHBOARD</div>
     <h1>Mock Test HQ</h1>
@@ -955,7 +991,6 @@
     </div>
   </div>
 
-  <!-- ─── Results Carousel ─── -->
   <div class="carousel-section">
     <div class="carousel-header">
       <div class="section-title" style="margin-bottom:0">Past Results</div>
@@ -983,14 +1018,12 @@
     </div>
   </div>
 
-  <!-- ─── Reset Progress Button ─── -->
   <div class="reset-container">
     <button class="reset-btn" id="reset-progress-btn" onclick="openResetModal()">↺ RESET PROGRESS FOR NEXT TEST</button>
   </div>
 
 </div>
 
-<!-- ─── Custom HTML In-App Confirmation Modal ─── -->
 <div class="custom-modal-overlay" id="reset-modal">
   <div class="custom-modal">
     <div class="modal-title">Reset Syllabus?</div>
